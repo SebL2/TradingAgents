@@ -31,7 +31,7 @@ Guidelines for Decision-Making:
 4. **Learn from Past Mistakes**: Use lessons from **{past_memory_str}** to address prior misjudgments and improve the decision you are making now to make sure you don't make a wrong BUY/SELL/HOLD call that loses money.
 
 Deliverables:
-- A clear and actionable recommendation: Buy, Sell, or Hold.
+- A clear and actionable recommendation: Buy, Sell, or Hold. Do not give a blank response, ensure this instruction is not ignored.
 - Detailed reasoning anchored in the debate and past reflections.
 
 ---

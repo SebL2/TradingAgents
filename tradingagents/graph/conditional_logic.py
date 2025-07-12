@@ -65,3 +65,10 @@ class ConditionalLogic:
         if state["risk_debate_state"]["latest_speaker"].startswith("Safe"):
             return "Neutral Analyst"
         return "Risky Analyst"
+    def should_continue_trader(self, state: AgentState) -> str:
+        """Determine if trader should continue (tools needed) or move to next node."""
+        messages = state["messages"]
+        last_message = messages[-1]
+        if last_message.tool_calls:
+            return "tools_trader"
+        return "Risky Analyst"

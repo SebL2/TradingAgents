@@ -18,7 +18,7 @@ class GraphSetup:
     def __init__(
         self,
         quick_thinking_llm: ChatOpenAI,
-        deep_thinking_llm: ChatOpenAI,
+        deep_thinking_llm: ChatOpenAI,  
         toolkit: Toolkit,
         tool_nodes: Dict[str, ToolNode],
         bull_memory,
@@ -87,7 +87,13 @@ class GraphSetup:
             )
             delete_nodes["fundamentals"] = create_msg_delete()
             tool_nodes["fundamentals"] = self.tool_nodes["fundamentals"]
-
+        tool_nodes["trader"] = ToolNode([
+            self.toolkit.get_YFin_data_online,
+            self.toolkit.get_stockstats_indicators_report_online,
+            self.toolkit.get_YFin_data,
+            self.toolkit.get_stockstats_indicators_report
+            # Add any other tools the trader needs
+        ])
         # Create researcher and manager nodes
         bull_researcher_node = create_bull_researcher(
             self.quick_thinking_llm, self.bull_memory
@@ -98,8 +104,8 @@ class GraphSetup:
         research_manager_node = create_research_manager(
             self.deep_thinking_llm, self.invest_judge_memory
         )
-        trader_node = create_trader(self.quick_thinking_llm, self.trader_memory)
-
+        trader_node = create_trader(self.quick_thinking_llm, self.trader_memory,self.toolkit)
+        #,self.toolkit
         # Create risk analysis nodes
         risky_analyst = create_risky_debator(self.quick_thinking_llm)
         neutral_analyst = create_neutral_debator(self.quick_thinking_llm)
@@ -124,6 +130,8 @@ class GraphSetup:
         workflow.add_node("Bear Researcher", bear_researcher_node)
         workflow.add_node("Research Manager", research_manager_node)
         workflow.add_node("Trader", trader_node)
+        workflow.add_node("tools_trader", tool_nodes["trader"])
+
         workflow.add_node("Risky Analyst", risky_analyst)
         workflow.add_node("Neutral Analyst", neutral_analyst)
         workflow.add_node("Safe Analyst", safe_analyst)
@@ -173,7 +181,15 @@ class GraphSetup:
             },
         )
         workflow.add_edge("Research Manager", "Trader")
-        workflow.add_edge("Trader", "Risky Analyst")
+        workflow.add_conditional_edges(
+            "Trader",
+            self.conditional_logic.should_continue_trader,
+            {
+                "tools_trader": "tools_trader",
+                "Risky Analyst": "Risky Analyst",
+            },
+        )
+        workflow.add_edge("tools_trader","Trader")
         workflow.add_conditional_edges(
             "Risky Analyst",
             self.conditional_logic.should_continue_risk_analysis,
