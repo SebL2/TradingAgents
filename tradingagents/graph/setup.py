@@ -105,7 +105,7 @@ class GraphSetup:
             self.deep_thinking_llm, self.invest_judge_memory
         )
         trader_node = create_trader(self.quick_thinking_llm, self.trader_memory,self.toolkit)
-        #,self.toolkit
+        
         # Create risk analysis nodes
         risky_analyst = create_risky_debator(self.quick_thinking_llm)
         neutral_analyst = create_neutral_debator(self.quick_thinking_llm)
@@ -132,6 +132,7 @@ class GraphSetup:
         workflow.add_node("Trader", trader_node)
         workflow.add_node("tools_trader", tool_nodes["trader"])
 
+        
         workflow.add_node("Risky Analyst", risky_analyst)
         workflow.add_node("Neutral Analyst", neutral_analyst)
         workflow.add_node("Safe Analyst", safe_analyst)

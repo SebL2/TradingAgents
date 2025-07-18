@@ -41,7 +41,7 @@ def create_fundamentals_analyst(llm, toolkit):
                 MessagesPlaceholder(variable_name="messages"),
             ]
         )
-
+        
         prompt = prompt.partial(system_message=system_message)
         prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
         prompt = prompt.partial(current_date=current_date)

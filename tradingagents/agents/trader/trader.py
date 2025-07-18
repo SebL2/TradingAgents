@@ -35,20 +35,20 @@ def create_trader(llm, memory,toolkit):
                 toolkit.get_YFin_data,
                 toolkit.get_stockstats_indicators_report,
             ]
-    
+        
         prompt = ChatPromptTemplate.from_messages([
             ("system", "Based on a comprehensive analysis by a team of analysts, here is an investment plan tailored for {company_name}."
              "This plan incorporates insights from current technical market trends, macroeconomic indicators, and social media sentiment." 
              "Use this plan as a foundation for evaluating your next trading decision.\n\nProposed Investment Plan: {investment_plan}\n\n"
              "Leverage these insights to make an informed and strategic decision."
              "Furthermore, from the given tools: {tool_names}, create a report for {ticker}"
-             "using the momentum strategy starting from {current_date}, going back a month."
-             "Calculate and analyze the momentum, rate of return, and determine whether if the momentum is positive or negative."
-             "Include these data points in the report as well and ensure the next role uses these data points in their analysis."),
+             "using the momentum strategy starting from {current_date}, going back a month. Include the date range in the report"
+             "Calculate and analyze the momentum by taking the price difference from back a month, and determine whether if the momentum is positive or negative. Include the RSI as well"
+             "Include these data points in the report as well, clearly labelling them in the report, and ensure the next role uses these data points in their analysis."),
             ("user", "You are a trading agent analyzing market data to make investment decisions."
              "Based on your analysis, provide a specific recommendation to buy, sell, or hold. "
              "End with a firm decision and always conclude your response with 'FINAL TRANSACTION PROPOSAL: **BUY/HOLD/SELL**' to confirm your recommendation."
-             "Do not forget to utilize lessons from past decisions to learn from your mistakes. Here is some reflections from similar situatiosn you traded in and the lessons learned: {past_memory_str}"),
+             "Do not forget to utilize lessons from past decisions to learn from your mistakes. Here is some reflections from similar situations you traded in and the lessons learned: {past_memory_str}"),
             MessagesPlaceholder(variable_name="messages"),
         ])
         prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
@@ -60,10 +60,10 @@ def create_trader(llm, memory,toolkit):
         chain = prompt | llm.bind_tools(tools)
         
         result = chain.invoke(state["messages"])
-        report = "" 
+        report = ""
 
         report = result.content if result.content else "Processing momentum analysis..."
-       
+
         return {
             "messages": [result],
             "trader_investment_plan": report,
